@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs'
 import jwt from "jsonwebtoken"
 import userModel from "../models/userModel.js";
+import transporter from "../config/nodemailer.js";
 export const register = async (req, res) => {
     const { name, email, password } = req.body;
     if (!name || !email || !password)
@@ -11,6 +12,7 @@ export const register = async (req, res) => {
         const existingUser = await userModel.findOne({ email })
         if (existingUser)
         {
+            
             return res.json({success:false,message:"User alreday exists"})
         }
         const hashedPassword = await bcrypt.hash(password, 10)
@@ -27,6 +29,22 @@ export const register = async (req, res) => {
             
 
         })
+         //IDEA:sending welcome email
+
+         const mailOptions = {
+            from:"poorvikp94@gmail.com",
+            to: email,
+            subject: "welcome to authentication-system",
+            text:`welcome to  authenticaion system .Your account has been created with email id:${email}`
+        }
+        try {
+            
+            await transporter.sendMail(mailOptions);
+            console.log("email sent")
+        } catch (error)
+        {
+            console.log("email failed:",error.message)
+        }
         
         return res.json({success:true})
     } catch (error)
@@ -62,6 +80,7 @@ export const login = async(req, res) =>{
             
 
         });
+       
         return res.json({success:true})
 
     } catch (error)
