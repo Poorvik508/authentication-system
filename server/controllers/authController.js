@@ -118,7 +118,7 @@ export const sendVerifyOtp = async (req, res) => {
             from:"poorvikp94@gmail.com",
             to: user.email,
             subject: "Accout Verification OTP",
-            text:`YOur OTP is ${otp}. Verify your account using this OTP`
+            text:`Your OTP is ${otp}. Verify your account using this OTP`
         }
         try {
             
@@ -167,4 +167,14 @@ export const verifyEmail = async (req,res) => {
         return res.json({success:false,message:error.message})
     }
 
+}
+export const isAuthenticated = async (req,res) => {
+    try {
+          
+        return res.json({success:true})
+
+    } catch (error)
+    {
+        res.json({ success: false, message: error.message });
+    }
 }
