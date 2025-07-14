@@ -1,6 +1,6 @@
 import React from 'react'
 
-const ResetPassword = () => {
+const ResetPassword= () => {
   return (
     <div>
       <h1>Reset Password</h1>
