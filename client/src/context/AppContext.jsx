@@ -7,7 +7,12 @@ export const AppContextProvider = (props) => {
     const [isloggedin,setisloggedin]=useState(false)
     const [userdata,setuserdata]=useState(false)
     const value = {
-        backendUrl
+        backendUrl,
+        isloggedin,
+        setisloggedin,
+        userdata,
+        setisloggedin,
+
         
     }
     return (
