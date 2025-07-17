@@ -103,41 +103,56 @@ export const logout = async (req,res) => {
 }
 
 export const sendVerifyOtp = async (req, res) => {
-    try {
-        const { userId } = req.body;
-        const user = await userModel.findById(userId);
-        if (user.isAccountVerified)
-        {
-            return res.json({success:false,message:"account is alreday verifyed"})
-        }
-        const otp = String(Math.floor(100000 + Math.random() * 900000))
-        user.verifyOtp = otp;
-        user.verifyOtpExpireAt = Date.now() + 24 * 60 * 60 * 1000
-        await user.save();
-        const mailOptions = {
-            from:"poorvikp94@gmail.com",
-            to: user.email,
-            subject: "Accout Verification OTP",
-            text:`Your OTP is ${otp}. Verify your account using this OTP`
-        }
-        try {
-            
-            await transporter.sendMail(mailOptions);
-            console.log("OTP sent")
-            res.json({success:true,message:"verification OTP sent on  mail"})
-        } catch (error)
-        {
+  try {
+    const userId = req.userId; // ✅ Get from verified token
 
-            console.log("OTP failed:",error.message)
-        }
-        
+    const user = await userModel.findById(userId);
 
-
-    } catch (error)
-    {
-        res.json({success:false,message:error.message})
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
     }
-}
+
+    if (user.isAccountVerified) {
+      return res.json({
+        success: false,
+        message: "Account is already verified",
+      });
+    }
+
+    const otp = String(Math.floor(100000 + Math.random() * 900000));
+    user.verifyOtp = otp;
+    user.verifyOtpExpireAt = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+    await user.save();
+
+    const mailOptions = {
+      from: "poorvikp94@gmail.com",
+      to: user.email,
+      subject: "Account Verification OTP",
+      text: `Your OTP is ${otp}. Verify your account using this OTP`,
+    };
+
+    try {
+      await transporter.sendMail(mailOptions);
+      console.log("OTP sent");
+      res.json({
+        success: true,
+        message: "Verification OTP sent to your email",
+      });
+    } catch (error) {
+      console.log("OTP failed:", error.message);
+      res.json({
+        success: false,
+        message: "Failed to send OTP email",
+      });
+    }
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
+
 export const verifyEmail = async (req,res) => {
     const { userId, otp } = req.body;
     if (!userId || !otp) {
